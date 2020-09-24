@@ -1,0 +1,56 @@
+- name: install httpd
+  hosts: nodes
+  gather_facts: no
+  tasks:
+  - name: install {{ package }}
+    yum:
+      name: "{{ package }}"
+
+  - name: start and enable {{ package }} service
+    systemd:
+      name: "{{ package }}"
+      state: started
+      enabled: yes
+      masked: no
+
+  - name: creating index file
+    copy:
+      content: "\"Welcome to my webserver\""
+      dest: /var/www/html/index.html
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: configuring firewalld
+    ansible.posix.firewalld:
+      zone: public
+      service: "{{ item }}"
+      permanent: yes
+      state: enabled
+    with_items:
+    - http
+    - https
+
+  - name: starting firewalld
+    systemd:
+      name: firewalld
+      state: started
+      enabled: yes
+      masked: no        
+
+  - name: stopping NetworkManager
+    systemd:
+      name: NetworkManager
+      state: stopped
+
+  - name: changing grub settings
+    lineinfile:
+      path: /etc/default/grub
+      regexp: '^(GRUB_CMDLINE_LINUX)'
+      insertbefore: '$'
+      line: '\1 net.ifnames=0 biosdevname=0'
+      backrefs: yes
+
+  - name: configuring grub
+    command: grub2-mkconfig
+

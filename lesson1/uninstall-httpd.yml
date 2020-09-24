@@ -1,0 +1,29 @@
+- name: uninstall httpd
+  hosts: nodes
+  gather_facts: no
+
+  tasks:
+  - name: remove {{ package }}
+    yum:
+      name: "{{ package }}"
+      state: absent
+
+  - name: remove index file
+    file:
+      path: /var/www/html/index.html
+      state: absent
+
+  - name: blocking traffic for httpd service
+    ansible.posix.firewalld:
+      zone: public
+      service: "{{ item }}"
+      permanent: yes
+      state: disabled
+    with_items:
+    - http
+    - https
+
+  - name: reloading firewalld
+    systemd:
+      name: firewalld
+      state: reloaded
