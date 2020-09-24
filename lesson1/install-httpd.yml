@@ -46,10 +46,8 @@
   - name: changing grub settings
     lineinfile:
       path: /etc/default/grub
-      regexp: '^(GRUB_CMDLINE_LINUX)'
-      insertbefore: '$'
-      line: '\1 net.ifnames=0 biosdevname=0'
-      backrefs: yes
+      regexp: '^GRUB_CMDLINE_LINUX'
+      line: 'GRUB_CMDLINE_LINUX="no_timer_check console=tty0 console=ttyS0,115200n8 net.ifnames=0 biosdevname=0 elevator=noop crashkernel=auto net.ifnames=0 biosdevname=0"'
 
   - name: configuring grub
     command: grub2-mkconfig
