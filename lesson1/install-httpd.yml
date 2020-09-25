@@ -1,6 +1,6 @@
 - name: install httpd
   hosts: nodes
-  gather_facts: no
+#  gather_facts: no
   tasks:
   - name: install {{ package }}
     yum:
@@ -12,6 +12,12 @@
       state: started
       enabled: yes
       masked: no
+
+  - name: colleting service facts
+    service_facts:
+  - name: checking {{ package }} status
+    debug:
+      var: ansible_facts.services['httpd.service']
 
   - name: creating index file
     copy:
