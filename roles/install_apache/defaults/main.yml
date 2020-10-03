@@ -1,0 +1,5 @@
+---
+# defaults file for install-webserver
+
+port80: 80
+port443: 443

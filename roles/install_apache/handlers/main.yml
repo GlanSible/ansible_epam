@@ -1,0 +1,19 @@
+---
+# handlers file for install-webserver
+
+- name: Restart Apache on RHEL
+  service: name=httpd state=restarted
+  when: ansible_os_family == "RedHat"
+
+- name: Start FirewallD on RHEL
+  service: name=firewalld state=started enabled=yes
+  when: ansible_os_family == "RedHat"
+
+- name: Restart Apache on Debian
+  service: name=apache2 state=restarted
+  when: ansible_os_family == "Debian"
+
+- name: Start UFW on Debian
+  service: name=ufw state=started enabled=yes
+  when: ansible_os_family == "Debian"
+

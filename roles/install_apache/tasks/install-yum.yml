@@ -1,0 +1,37 @@
+---
+- name: install {{ package_yum }}
+  yum:
+    name: "{{ package_yum }}"
+
+- name: start and enable {{ service_name }} service
+  systemd:
+    name: "{{ package_yum }}"
+    state: started
+    enabled: yes
+    masked: no
+
+- name: colleting service facts
+  service_facts:
+- name: checking {{ package_yum }} status
+  debug:
+    var: ansible_facts.services['{{ package_yum }}.service']
+
+- name: creating index file
+  copy:
+    content: "\"Welcome to my webserver\""
+    dest: /var/www/html/index.html
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart Apache on RHEL
+
+- name: configuring firewalld
+  ansible.posix.firewalld:
+    zone: public
+    service: "{{ item }}"
+    permanent: yes
+    state: enabled
+  with_items:
+  - http
+  - https
+  notify: Start FirewallD on RHEL

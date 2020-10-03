@@ -1,0 +1,10 @@
+---
+# tasks file for install-webserver
+
+#Install tasks
+
+- include_tasks: install-yum.yml
+  when: ansible_pkg_mgr == 'yum'
+
+- include_tasks: install-apt.yml
+  when: ansible_pkg_mgr == 'apt'

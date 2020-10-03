@@ -1,0 +1,5 @@
+# vars file for install-webserver
+package_yum: httpd
+package_apt: apache2
+service_name: apache
+
