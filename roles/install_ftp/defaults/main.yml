@@ -1,0 +1,5 @@
+---
+# defaults file for install_vsftpd
+
+package_name: vsftpd
+ftp_port: 21
