@@ -1,0 +1,4 @@
+---
+- hosts: webserver
+  roles:
+    - install_ftp

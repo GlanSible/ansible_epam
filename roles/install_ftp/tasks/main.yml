@@ -1,42 +1,41 @@
 ---
 # tasks file for install_ftp
-vars:
-- anonymous_enable: YES
-- local_enable: YES
-- write_enable: YES
-- anon_upload_enable: YES
-- dirmessage_enable: YES
-- listen: YES
-- pam_service_name: vsftpd
 
-- name: installing {{ package_name }}
-  hosts: all
-  tasks:
+#- name: install and configure {{ service_name }} service
+#  hosts: webserver
+#  tasks:
+- name: RedHat block
+  block: 
+    - name: install {{ service_name }}
+      yum:
+        name: "{{ package_name }}"
+        state: present
+      notify:
+        - start ftp
+    - name: configuring firewalld
+      ansible.posix.firewalld:
+        zone: public
+        service: "{{ service_name }}"
+        permanent: yes
+        state: enabled
+      notify:  start firewalld
+  when: ansible_os_family == "RedHat"
 
-  - block: RHEL block
-      - name: Install {{ package_name }}
-        yum: name=vsftpd state=latest
-      - name: Start {{ package_name }}
-        systemd: name=vsftpd state=started enabled=yes
-      - name: configuring firewalld
-        ansible.posix.firewalld:
-          port: "{{ ftp_port }}"/tcp
-          permanent: yes
-          state: enabled
-        notify: start firewalld 
-    when: ansible_os_family == "RedHat"
+- name: Debian block
+  block:
+    - name: Install {{ service_name }}
+      apt:
+        name: "{{ package_name }}"
+      notify:
+        - start ftp
+    - name: configuring ufw
+      community.general.ufw:
+        rule: allow
+        port: "{{ ftp_port }}"
+        proto: tcp
+      notify: start ufw
+  when: ansible_os_family == "Debian"
 
-  - block: Debian block
-      - name: Install {{ package_name }}
-        apt: name=vsftpd state=latest
-      - name: Start {{ package_name }}
-        systemd: name=vsftpd state=started enabled=yes
-      - name: configuring ufw
-        community.general.ufw:
-          rule: allow
-          port: "{{ ftp_port }}"
-          proto: tcp
-        notify: start ufw
-    when: ansible_os_family == "RedHat"
-
-  - name: generating {{ package_name }} config file
+- name: generating {{ service_name }} config
+  template: src=vsftpd.j2 dest=/etc/vsftpd/vsftpd.conf
+  notify: restart {{ service_name }}

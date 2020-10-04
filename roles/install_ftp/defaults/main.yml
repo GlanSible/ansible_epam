@@ -1,5 +1,12 @@
 ---
-# defaults file for install_vsftpd
-
+# defaults file for install_ftp
+service_name: ftp
 package_name: vsftpd
 ftp_port: 21
+
+anonymous_enable: YES
+local_enable: YES
+write_enable: YES
+anon_upload_enable: YES
+dirmessage_enable: YES
+listen: YES

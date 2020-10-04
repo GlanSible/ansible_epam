@@ -1,9 +1,13 @@
 ---
-# handlers file for install_vsftpd
-
+# handlers file for install_ftp
 - name: start firewalld
   service: name=firewalld state=started
 
 - name: start ufw
   service: name=ufw state=started
-  
+
+- name: start ftp
+  systemd: name=vsftpd state=started enabled=yes
+
+- name: restart ftp
+  systemd: name=vsftpd state=restarted
