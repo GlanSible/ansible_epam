@@ -1,0 +1,34 @@
+   - name: install python libs on RHEL
+     yum:
+       name:
+       - libselinux-python
+       - libsemanage-python
+       state: present
+     when: ansible_os_family == "RedHat"
+   - name: install python libs on Debian
+     apt:
+       update_cache: yes
+     apt:
+       name:
+       - selinux-policy
+       - python-selinux
+       - python-semanage
+       state: present
+     when: ansible_os_family == "Debian"
+
+   - name: start selinux
+     ansible.posix.selinux:
+       policy: targeted
+       state: enforcing
+
+   - name: Selinux configuring
+     ansible.posix.seboolean:
+       name: allow_ftpd_anon_write
+       state: yes
+       persistent: yes
+
+   - name: Selinux configuring
+     ansible.posix.seboolean:
+       name: ftpd_full_access
+       state: yes
+       persistent: yes

@@ -1,4 +1,4 @@
 ---
-- hosts: webserver
+- hosts: nodes
   roles:
     - install_ftp

@@ -1,9 +1,6 @@
 ---
 # tasks file for install_ftp
 
-#- name: install and configure {{ service_name }} service
-#  hosts: webserver
-#  tasks:
 - name: RedHat block
   block: 
     - name: install {{ service_name }}
@@ -19,6 +16,11 @@
         permanent: yes
         state: enabled
       notify:  start firewalld
+    - name: generating {{ service_name }} config
+      template:
+        src: vsftpd.j2
+        dest: "{{ rh_path }}"   
+      notify: restart {{ service_name }}
   when: ansible_os_family == "RedHat"
 
 - name: Debian block
@@ -34,8 +36,21 @@
         port: "{{ ftp_port }}"
         proto: tcp
       notify: start ufw
+    - name: generating {{ service_name }} config
+      template:
+        src: vsftpd.j2
+        dest: "{{ deb_path }}"
+      notify: restart {{ service_name }}
   when: ansible_os_family == "Debian"
 
-- name: generating {{ service_name }} config
-  template: src=vsftpd.j2 dest=/etc/vsftpd/vsftpd.conf
-  notify: restart {{ service_name }}
+- name: set permissions and SELinux context
+  block:
+    - name: set permissions to anonymous upload
+      file:
+        path: "{{ dir_path }}"
+        state: directory
+        owner: ftp
+        mode: '0755'
+
+- include_tasks: selinux.yml
+
